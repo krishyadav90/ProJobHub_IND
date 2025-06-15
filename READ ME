@@ -1,0 +1,175 @@
+# 🚀 **ProJobHub**
+
+A modern, full-featured job portal built with **React**, **TypeScript**, and **Supabase** — by **Krish Yadav**.
+
+---
+
+## 📋 **Project Overview**
+
+ProJobHub helps job seekers find opportunities and employers post jobs with ease. Powered by cutting-edge technologies and sleek design.
+
+---
+
+## 🔐 **Authentication & User Management**
+
+* 🔑 **Supabase Auth** – Secure sign-up & login
+* 👤 **User Profiles** – Manage personal information
+* 🚫 **Protected Routes** – Access control for authenticated features
+
+---
+
+## 💼 **Job Management**
+
+* 🔍 **Job Browsing** – Search and explore listings
+* 🎯 **Advanced Filtering** – Role, location, salary, experience, etc.
+* 🧾 **Job Details Modal** – Clean UI (e.g., `JobModal.tsx` with smooth close button)
+* ➕ **Job Posting** – For logged-in employers
+
+---
+
+## 💬 **Real-time Messaging**
+
+* 💬 **Live Chat** – Built with Supabase Realtime
+* 👥 **Community Features** – Connect with others
+
+---
+
+## 🎨 **Modern UI/UX**
+
+* 📱 **Responsive Design** – Works on all devices
+* 💫 **Animations** – Smooth transitions & hover effects
+* 🧊 **Glassmorphism** – Modern aesthetic
+* 🌌 **Moving Background** – Dynamic visuals
+* 🌗 **Dark/Light Mode** – Supports `next-themes`
+
+---
+
+## 🔍 **Smart Search & Filtering**
+
+* 📝 **Keyword Search**
+* 📍 **Location Filter** – Remote/Onsite
+* 💰 **Salary Range** – Adjustable slider
+* 📈 **Experience Level** – Junior → Senior
+* ⏳ **Employment Type** – Full-time, part-time, contract, internship
+
+---
+
+## 🛠️ **Technology Stack**
+
+### ⚛️ Frontend
+
+* React 18 + Hooks
+* TypeScript
+* Vite ⚡
+* Tailwind CSS 🎨
+* shadcn/ui 🧩
+
+### 🔙 Backend & DB
+
+* Supabase – BaaS 🔐
+* PostgreSQL – Relational DB 🗄️
+* RLS – Row-Level Security 🛡️
+* Real-time Subscriptions 🔔
+
+### 🧰 Libraries
+
+* React Router DOM – Routing
+* Tanstack React Query – Data management
+* React Hook Form – Form handling
+* Lucide React – Icons ✨
+* Recharts – Graphs & Charts 📊
+
+---
+
+## 📁 **Project Structure**
+
+```bash
+src/
+├── components/
+│   ├── ui/              # shadcn/ui components
+│   ├── JobCard.tsx
+│   ├── JobList.tsx
+│   ├── JobModal.tsx
+│   ├── JobSidebar.tsx
+├── pages/
+│   ├── Index.tsx
+│   ├── Auth.tsx
+│   ├── Profile.tsx
+│   ├── Messages.tsx
+│   ├── Hiring.tsx
+├── hooks/
+│   └── useAuth.tsx
+├── services/
+│   └── jobsService.ts
+├── data/
+│   └── jobs.ts
+└── integrations/
+    └── supabase/
+```
+
+---
+
+## 🗄️ **Database Schema**
+
+* 🧑 **profiles** – User info
+* 💼 **jobs** – Job listings
+* 💬 **messages** – Chat system
+
+🔐 **Security Features**
+
+* RLS policies
+* Auto-profile creation
+* Real-time updates
+
+---
+
+## 🎯 **Core Functionality**
+
+* 🛠️ CRUD for jobs
+* 📡 Real-time updates
+* 📱 Smooth, responsive UX
+* 🔁 Modern loading states
+* ❌ Robust error handling
+
+---
+
+## 📱 **Responsive Design**
+
+Optimized for:
+
+* 📱 Mobile (320px+)
+* 💻 Tablets (768px+)
+* 🖥️ Desktops (1024px+)
+* 🖥️ Large Screens (1440px+)
+
+---
+
+## 🔧 **Configuration**
+
+* 🛠️ Supabase backend
+* 🗃️ DB migrations
+* 🛡️ RLS security
+* 🔄 Real-time subs
+* 🔐 Auth flow
+
+---
+
+## 🎨 **Design System**
+
+* 🎨 Gradient color scheme
+* 🆎 Clean typography
+* 🧩 shadcn/ui components
+* 🌀 Smooth transitions
+* 🔣 Lucide icons – X, Bookmark, MapPin
+
+---
+
+## ▶️ **Run the Project**
+
+npm run dev
+
+## 🙌 **Credits**
+
+* 👨‍💻 Created by: Krish Yadav
+* 🧱 Built with: React, TypeScript, Vite, Tailwind CSS, Supabase, shadcn/ui
+
