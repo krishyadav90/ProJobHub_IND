@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,7 +16,7 @@ const queryClient = new QueryClient();
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const location = useLocation();
-  if (loading) return null;
+  if (loading) return <div>Loading...</div>; // Add explicit loading state
   if (!user) return <Navigate to="/auth" state={{ from: location }} replace />;
   return <>{children}</>;
 }
@@ -25,55 +24,73 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   const { user } = useAuth();
   
-  // Initialize posted jobs from Supabase
+  // Initialize state with loading indicators
   const [postedJobs, setPostedJobs] = React.useState<Job[]>([]);
   const [allJobs, setAllJobs] = React.useState<Job[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loadingJobs, setLoadingJobs] = React.useState(true);
 
   // Load all jobs when component mounts
   React.useEffect(() => {
+    let isMounted = true;
+
     const loadAllJobs = async () => {
       try {
         const jobs = await jobsService.getAllJobs();
-        setAllJobs(jobs);
-        console.log('App - loaded all jobs:', jobs.length);
+        if (isMounted) {
+          setAllJobs(jobs);
+          console.log('App - loaded all jobs:', jobs.length);
+        }
       } catch (error) {
         console.error('Error loading all jobs:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoadingJobs(false);
+        }
       }
     };
 
     loadAllJobs();
+
+    return () => {
+      isMounted = false; // Prevent state updates after unmount
+    };
   }, []);
 
   // Load user-specific jobs when user changes
   React.useEffect(() => {
-    const loadUserJobs = async () => {
-      if (!user?.id) {
-        setPostedJobs([]);
-        return;
-      }
+    if (!user?.id) {
+      setPostedJobs([]);
+      return;
+    }
 
+    let isMounted = true;
+
+    const loadUserJobs = async () => {
       try {
         const userJobs = await jobsService.getUserJobs(user.id);
-        setPostedJobs(userJobs);
-        console.log(`App - loaded jobs for user ${user.id}:`, userJobs.length);
+        if (isMounted) {
+          setPostedJobs(userJobs);
+          console.log(`App - loaded jobs for user ${user.id}:`, userJobs.length);
+        }
       } catch (error) {
         console.error('Error loading user jobs:', error);
-        setPostedJobs([]);
+        if (isMounted) {
+          setPostedJobs([]);
+        }
       }
     };
 
-    if (user?.id) {
-      loadUserJobs();
-    }
+    loadUserJobs();
+
+    return () => {
+      isMounted = false; // Prevent state updates after unmount
+    };
   }, [user?.id]);
 
   // Enhanced setPostedJobs that updates both local state and Supabase
   const updatePostedJobs = React.useCallback(async (newJobs: Job[] | ((prev: Job[]) => Job[])) => {
     if (!user?.id) return;
-    
+
     setPostedJobs(prev => {
       const updated = typeof newJobs === 'function' ? newJobs(prev) : newJobs;
       console.log(`App - jobs updated for user ${user.id}:`, updated.length);
@@ -81,6 +98,7 @@ function AppRoutes() {
       // Refresh all jobs to show the latest data
       jobsService.getAllJobs().then(allJobs => {
         setAllJobs(allJobs);
+        console.log('App - refreshed all jobs:', allJobs.length);
       });
       
       return updated;
@@ -97,7 +115,7 @@ function AppRoutes() {
             postedJobs={postedJobs} 
             setPostedJobs={updatePostedJobs}
             allJobs={allJobs}
-            loading={loading}
+            loading={loadingJobs}
             requireAuth={false}
           />
         }
@@ -113,7 +131,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <AppRoutes />
         </BrowserRouter>
       </AuthProvider>

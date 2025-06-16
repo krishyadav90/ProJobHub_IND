@@ -22,7 +22,7 @@ const initialFilters: Filters = {
   experience: "",
   period: "",
   minSalary: 0,
-  maxSalary: 500000,
+  maxSalary: 999999999, // Set to a high value to avoid filtering out jobs initially
   keyword: "",
 };
 
@@ -71,12 +71,14 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
 
   // Filter the merged jobs based on current filters
   const filteredJobs = React.useMemo(() => {
+    if (loading) return []; // Avoid filtering during loading
+
     console.log("Index - Filtering jobs, total before filter:", mergedJobs.length);
-    console.log("Index - Active filters:", filters);
-    console.log("Index - Active sidebar filters:", sidebarFilters);
+    console.log("Index - Active filters:", JSON.stringify(filters, null, 2));
+    console.log("Index - Active sidebar filters:", JSON.stringify(sidebarFilters, null, 2));
     
     const filtered = mergedJobs.filter(job => {
-      // Role filter - only apply if filter has a value
+      // Role filter
       if (filters.role && filters.role.trim() !== "") {
         if (!job.role.toLowerCase().includes(filters.role.toLowerCase())) {
           console.log(`Job ${job.id} filtered out by role: ${job.role} doesn't match ${filters.role}`);
@@ -84,10 +86,10 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
         }
       }
       
-      // Work location filter - only apply if filter has a value
+      // Work location filter
       if (filters.workLocation && filters.workLocation.trim() !== "") {
         if (filters.workLocation === "Remote") {
-          if (!job.tags.some(tag => 
+          if (!job.tags?.some(tag => 
             tag.toLowerCase().includes("remote") || 
             tag.toLowerCase().includes("distant") ||
             tag.toLowerCase().includes("work from home")
@@ -96,7 +98,7 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
             return false;
           }
         } else if (filters.workLocation === "Onsite") {
-          if (!job.tags.some(tag => 
+          if (!job.tags?.some(tag => 
             tag.toLowerCase().includes("onsite") ||
             tag.toLowerCase().includes("office") ||
             tag.toLowerCase().includes("on-site")
@@ -107,9 +109,8 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
         }
       }
       
-      // Experience filter - only apply if filter has a value
+      // Experience filter
       if (filters.experience && filters.experience.trim() !== "") {
-        // Check both tags and experience level keywords
         const experienceKeywords = {
           "Junior": ["junior", "entry", "fresher", "trainee"],
           "Middle": ["middle", "mid", "intermediate", "experienced"],
@@ -118,7 +119,7 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
         
         const keywords = experienceKeywords[filters.experience as keyof typeof experienceKeywords] || [filters.experience.toLowerCase()];
         const hasExperienceMatch = keywords.some(keyword => 
-          job.tags.some(tag => tag.toLowerCase().includes(keyword)) ||
+          job.tags?.some(tag => tag.toLowerCase().includes(keyword)) ||
           job.role.toLowerCase().includes(keyword)
         );
         
@@ -128,12 +129,12 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
         }
       }
       
-      // Period filter - Fixed to check employment type properly
+      // Period filter
       if (filters.period && filters.period.trim() !== "") {
         const periodLower = filters.period.toLowerCase();
-        const hasMatchingPeriod = job.tags.some(tag => 
+        const hasMatchingPeriod = job.tags?.some(tag => 
           tag.toLowerCase().includes(periodLower)
-        ) || job.employmentType.some(type => 
+        ) || job.employmentType?.some(type => 
           type.toLowerCase().includes(periodLower)
         );
         
@@ -143,29 +144,29 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
         }
       }
       
-      // Keyword filter - only apply if filter has a value
+      // Keyword filter
       if (filters.keyword && filters.keyword.trim() !== "") {
         const keyword = filters.keyword.toLowerCase();
         const matchesRole = job.role.toLowerCase().includes(keyword);
         const matchesCompany = job.company.toLowerCase().includes(keyword);
-        const matchesTags = job.tags.some(tag => tag.toLowerCase().includes(keyword));
+        const matchesTags = job.tags?.some(tag => tag.toLowerCase().includes(keyword));
         if (!matchesRole && !matchesCompany && !matchesTags) {
           console.log(`Job ${job.id} filtered out by keyword: ${keyword}`);
           return false;
         }
       }
       
-      // Salary range filter - compare directly with job salary
+      // Salary range filter
       if (job.salary < filters.minSalary || job.salary > filters.maxSalary) {
         console.log(`Job ${job.id} filtered out by salary: ₹${job.salary}/hr not in range ₹${filters.minSalary}/hr-₹${filters.maxSalary}/hr`);
         return false;
       }
       
-      // Sidebar filters - only apply if any are checked
+      // Sidebar filters
       const checkedSidebarFilters = Object.entries(sidebarFilters).filter(([_, isChecked]) => isChecked);
       if (checkedSidebarFilters.length > 0) {
-        const hasMatchingSidebarFilter = checkedSidebarFilters.some(([filterKey, _]) => {
-          return job.tags.some(tag => 
+        const hasMatchingSidebarFilter = checkedSidebarFilters.some(([filterKey]) => {
+          return job.tags?.some(tag => 
             tag.toLowerCase().includes(filterKey.toLowerCase())
           );
         });
@@ -179,11 +180,11 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
     });
     
     console.log("Index - Jobs after filtering:", filtered.length);
-    if (filtered.length === 0) {
-      console.log("Index - No jobs passed filters. This might indicate overly restrictive filtering.");
+    if (filtered.length === 0 && mergedJobs.length > 0) {
+      console.log("Index - No jobs passed filters. Filters may be too restrictive or data may be incomplete.");
     }
     return filtered;
-  }, [mergedJobs, filters, sidebarFilters]);
+  }, [mergedJobs, filters, sidebarFilters, loading]);
 
   // Handle view changes that require authentication
   const handleViewChange = (view: string) => {
@@ -274,7 +275,7 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
                     <p className="text-sm lg:text-base text-gray-600">Please wait while we fetch the latest opportunities</p>
                   </div>
                 </div>
-              ) : !user ? (
+              ) : filteredJobs.length === 0 && !user ? (
                 <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl p-6 lg:p-8 shadow-lg border border-white/20">
                   <div className="text-center">
                     <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -340,7 +341,6 @@ export default function Index({ postedJobs, setPostedJobs, allJobs, loading, req
           onClose={() => setJobModal(null)} 
         />
         
-        {/* Add Footer */}
         <Footer />
       </div>
     </>
