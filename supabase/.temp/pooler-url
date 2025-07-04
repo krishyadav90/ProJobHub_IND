@@ -1,1 +1,1 @@
-postgresql://postgres.tequprzhtjockrwhhofc:[YOUR-PASSWORD]@aws-0-ap-south-1.pooler.supabase.com:6543/postgres
+const dbUrl = process.env.SUPABASE_DB_URL
